@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 import numpy as np
 
 from src.land_map import Land, MapBlock, is_nature_wide_along_axis
@@ -38,7 +39,7 @@ class TestLand(TestCase):
         expected_land_array[3:8, 3:8] = 1
         expected_land_array[5, 5] = 2
         np.testing.assert_array_equal(land_array, expected_land_array)
-        self.assertEqual(250,population.sum())
+        self.assertEqual(250, population.sum())
 
     def test_set_centralities(self):
         land = Land(size_x=20, size_y=10)
@@ -102,7 +103,7 @@ class TestLand(TestCase):
                 land.map[i][j].is_built = True
                 land.map[i][j].is_nature = False
         land.map[15][15].is_centrality = True
-        land.set_current_counts(urbanism_model='isobenefit')
+        land.set_current_counts(urbanism_model="isobenefit")
         self.assertEqual((2 * 99 + 17) / 99, land.avg_dist_from_nature)
         self.assertAlmostEqual(3.891977374432388, land.avg_dist_from_centr, places=7)
         self.assertEqual(5, land.max_dist_from_nature)
@@ -111,16 +112,16 @@ class TestLand(TestCase):
     def test_set_current_counts_classical(self):
         land = Land(size_x=30, size_y=30)
         for i in range(10, 21):
-            for j in [10,15,20]:
+            for j in [10, 15, 20]:
                 land.map[i][j].is_built = True
                 land.map[i][j].is_nature = False
                 land.map[j][i].is_built = True
                 land.map[j][i].is_nature = False
 
         land.map[15][15].is_centrality = True
-        land.set_current_counts(urbanism_model='classical')
+        land.set_current_counts(urbanism_model="classical")
         self.assertAlmostEqual(1.7142857142857142, land.avg_dist_from_nature_wide, places=7)
-        self.assertAlmostEqual(1., land.avg_dist_from_nature, places=7)
+        self.assertAlmostEqual(1.0, land.avg_dist_from_nature, places=7)
         self.assertAlmostEqual(4.821970622705455, land.avg_dist_from_centr, places=7)
         self.assertEqual(5, land.max_dist_from_nature_wide)
         self.assertEqual(1, land.max_dist_from_nature)
@@ -128,7 +129,7 @@ class TestLand(TestCase):
 
     def test_initialize_map_from_image(self):
         land = Land(20, 10)
-        test_image_path = 'fixtures/test_land_map.png'
+        test_image_path = "fixtures/test_land_map.png"
         land.set_configuration_from_image(test_image_path)
         land.check_consistency()
         array_map, _ = land.get_map_as_array()
@@ -143,6 +144,7 @@ class TestLand(TestCase):
 
     def test_logger(self):
         from src import logger
+
         LOGGER = logger.get_logger()
         LOGGER.info("test_logger")
         print(logger.BASE_DIR)

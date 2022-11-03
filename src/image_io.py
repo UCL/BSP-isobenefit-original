@@ -1,6 +1,6 @@
-from PIL import Image
 import numpy as np
 from matplotlib import cm
+from PIL import Image
 
 
 def import_2Darray_from_image(filepath):
@@ -16,7 +16,7 @@ def plot_image_from_2Darray(normalized_data_array, color_map=cm.gist_earth):
     img.show()
 
 
-def save_image_from_2Darray(canvas, filepath, format='png'):
+def save_image_from_2Darray(canvas, filepath, format="png"):
     data_mapped = np.uint8(255 * canvas)
     img = Image.fromarray(data_mapped)
     img.save(filepath, format=format)

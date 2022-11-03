@@ -2,8 +2,13 @@ import numpy as np
 
 
 def get_circular_coords(radius, center_x, center_y, n_amenities):
-    [(center_x + int(radius * np.sin(2 * t * np.pi)), center_y + int(radius * np.cos(2 * t * np.pi))) for t in
-     np.linspace(0, 1, n_amenities)]
+    [
+        (
+            center_x + int(radius * np.sin(2 * t * np.pi)),
+            center_y + int(radius * np.cos(2 * t * np.pi)),
+        )
+        for t in np.linspace(0, 1, n_amenities)
+    ]
 
 
 def get_random_coordinates(size_x, size_y, n_amenities, seed=42):
