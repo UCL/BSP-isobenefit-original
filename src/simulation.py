@@ -2,8 +2,10 @@ import json
 import os
 import time
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 
 from src import logger
 from src.image_io import save_image_from_2Darray
@@ -14,23 +16,24 @@ N_AMENITIES = 1
 
 
 def run_isobenefit_simulation(
-    size_x,
-    size_y,
-    n_steps,
-    output_path_prefix,
-    build_probability,
-    neighboring_centrality_probability,
-    isolated_centrality_probability,
-    T_star,
-    random_seed,
-    input_filepath,
-    initialization_mode,
-    max_population,
-    max_ab_km2,
-    urbanism_model,
-    prob_distribution,
-    density_factors,
-):
+    size_x: int,
+    size_y: int,
+    n_steps: int,
+    output_path_prefix: str,
+    build_probability: float,
+    neighboring_centrality_probability: float,
+    isolated_centrality_probability: float,
+    T_star: int,
+    random_seed: int,
+    input_filepath: Path,
+    initialization_mode: str,
+    max_population: int,
+    max_ab_km2: int,
+    urbanism_model: str,
+    prob_distribution: tuple[float, float, float],
+    density_factors: tuple[float, float, float],
+) -> None:
+    """ """
     logger.configure_logging()
     LOGGER = logger.get_logger()
     np.random.seed(random_seed)
@@ -40,13 +43,13 @@ def run_isobenefit_simulation(
         "size_x": size_x,
         "size_y": size_y,
         "n_steps": n_steps,
-        "output_path": output_path,
+        "output_path": str(output_path),
         "build_probability": build_probability,
         "neighboring_centrality_probability": neighboring_centrality_probability,
         "isolated_centrality_probability": isolated_centrality_probability,
         "T_star": T_star,
         "random_seed": random_seed,
-        "input_filepath": input_filepath,
+        "input_filepath": str(input_filepath),
         "initialization_mode": initialization_mode,
         "max_population": max_population,
         "max_ab_km2": max_ab_km2,
@@ -55,11 +58,11 @@ def run_isobenefit_simulation(
         "density_factors": density_factors,
     }
 
-    Path(output_path).mkdir(parents=True, exist_ok=True)
+    output_path.mkdir(parents=True, exist_ok=True)
     save_metadata(metadata, output_path)
 
     t_zero = time.time()
-    land = initialize_land(
+    land: IsobenefitScenario | ClassicalScenario = initialize_land(
         size_x,
         size_y,
         amenities_list=get_central_coord(size_x=size_x, size_y=size_y),
@@ -76,7 +79,7 @@ def run_isobenefit_simulation(
         density_factors=density_factors,
     )
 
-    canvas = np.ones(shape=(size_x, size_y, 4))
+    canvas: npt.NDArray[np.float_] = np.full((size_x, size_y, 4), 1.0, dtype=np.float_)
     update_map_snapshot(land, canvas)
     save_snapshot(canvas, output_path=output_path, step=0)
     land.set_record_counts_header(output_path=output_path, urbanism_model=urbanism_model)
@@ -113,39 +116,41 @@ def run_isobenefit_simulation(
     LOGGER.info(f"Simulation ended. Total duration: {time.time() - t_zero} seconds")
 
 
-def make_output_path(output_path_prefix):
+def make_output_path(output_path_prefix: str) -> Path:
+    """ """
     if output_path_prefix is None:
         timestamp = time.strftime("%Y%m%d-%H%M%S", time.localtime())
-        output_path = f"simulations/{timestamp}"
+        output_path = Path(f"simulations/{timestamp}")
     else:
-        output_path = f"simulations/{output_path_prefix}"
+        output_path = Path(f"simulations/{output_path_prefix}")
 
     return output_path
 
 
-def save_metadata(metadata, output_path: str):
-    metadata["output_path"] = output_path
-    metadata_filepath = os.path.join(output_path, "metadata.json")
+def save_metadata(metadata: dict[str, Any], output_path: Path) -> None:
+    """ """
+    metadata_filepath: Path = output_path / "metadata.json"
     with open(metadata_filepath, "w") as f:
         f.write(json.dumps(metadata))
 
 
 def initialize_land(
-    size_x,
-    size_y,
-    build_probability,
-    neighboring_centrality_probability,
-    isolated_centrality_probability,
-    T,
-    max_population,
-    max_ab_km2,
-    mode,
-    filepath,
-    amenities_list,
-    urbanism_model,
-    prob_distribution,
-    density_factors,
-):
+    size_x: int,
+    size_y: int,
+    build_probability: float,
+    neighboring_centrality_probability: float,
+    isolated_centrality_probability: float,
+    T: int,
+    max_population: int,
+    max_ab_km2: int,
+    mode: str,
+    filepath: Path,
+    amenities_list: list[tuple[int, int]],
+    urbanism_model: str,
+    prob_distribution: tuple[float, float, float],
+    density_factors: tuple[float, float, float],
+) -> IsobenefitScenario | ClassicalScenario:
+    """ """
     assert (
         size_x > 2 * T and size_y > 2 * T
     ), f"size of the map is too small: {size_x}x{size_y}. Dimensions should be larger than {2 * T}"
@@ -183,20 +188,22 @@ def initialize_land(
             density_factors=density_factors,
         )
     else:
-        raise ("Invalid urbanism model. Choose one of 'isobenefit' and 'classical'")
+        raise ValueError("Invalid urbanism model. Choose one of 'isobenefit' and 'classical'")
 
     if mode == "image" and filepath is not None:
         land.set_configuration_from_image(filepath)
     elif mode == "list":
-        amenities = [MapBlock(x, y, inhabitants=0) for (x, y) in amenities_list]
-        land.set_centralities(amenities)
+        amenities: list[MapBlock] = [MapBlock(x, y, inhabitants=0) for (x, y) in amenities_list]
+        for amenity in amenities:
+            amenity.is_centrality = True
     else:
         raise Exception('Invalid initialization mode. Valid modes are "image" and "list".')
-    land.check_consistency()
+
     return land
 
 
-def update_map_snapshot(land, canvas):
+def update_map_snapshot(land: Land, canvas: npt.NDArray[np.float_]) -> None:
+    """ """
     for row in land.map:
         for block in row:
             if block.is_nature:
@@ -214,14 +221,16 @@ def update_map_snapshot(land, canvas):
             canvas[block.y, block.x] = np.array([color[0], color[1], color[2], 1])
 
 
-def save_snapshot(canvas, output_path, step, format="png"):
-    final_path = os.path.join(output_path, f"{step:05d}.png")
+def save_snapshot(canvas: npt.NDArray[np.float_], output_path: Path, step: int, format: str = "png") -> Path:
+    """ """
+    final_path: Path = output_path / f"{step:05d}.png"
     save_image_from_2Darray(canvas, filepath=final_path, format=format)
     return final_path
 
 
-def save_min_distances(land: Land, output_path):
-    land_array, population_array = land.get_map_as_array()
+def save_min_distances(land: Land, output_path: Path) -> None:
+    """ """
+    land_array, _population_array = land.get_map_as_array()
     x_centr, y_centr = np.where(land_array == 2)
     x_built, y_built = np.where(land_array == 1)
     x_nature, y_nature = np.where(land_array == 0)

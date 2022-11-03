@@ -1,3 +1,4 @@
+import logging
 import logging.config
 import os
 import sys
@@ -34,7 +35,8 @@ LOGGING = {
 }
 
 
-def configure_logging(console_only=False):
+def configure_logging(console_only: bool = False) -> None:
+    """ """
     if console_only:
         logging.config.dictConfig(LOGGING)
         return
@@ -46,8 +48,7 @@ def configure_logging(console_only=False):
         open(os.path.join(LOGS_DIR, LOG_FILENAME), "a").close()
 
     logging.config.dictConfig(LOGGING)
-    pass
 
 
-def get_logger():
+def get_logger() -> logging.Logger:
     return logging.getLogger(LOG_FILENAME)
