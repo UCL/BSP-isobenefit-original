@@ -1,6 +1,6 @@
 # Isobenefit Urbanism
 
-> Originally developed by Michele Voto for Isobenefit Urbanism per Luca D'Acci. Subsequently developed as part of the Future Urban Growth project at the Bartlett School of Planning.
+> Forked from the original work by Michele Voto and Luca D'Acci. Subsequently developed as part of the Future Urban Growth project at the Bartlett School of Planning.
 
 _An urban genetic code to generate low carbon, adaptive, connected, compact, multifunctional settlements throughout nature, with unplanned forms and unlimitedly extendible, in which one does not need cars and can feel both urbanity and nature._
 
