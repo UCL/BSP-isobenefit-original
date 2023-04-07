@@ -6,6 +6,8 @@ _An urban genetic code to generate low carbon, adaptive, connected, compact, mul
 
 This project presents generative simulations of urban growth in the [isobenefit urbanism scenario](https://lucadacci.wixsite.com/dacci/isobenefit-urbanism-morphogenesis)
 
+See the [BSP-isobenefit-qgis-plugin](https://github.com/UCL/BSP-isobenefit-qgis-plugin) repository for subsequent development of a QGIS plugin, and the [BSP-isobenefit-urbanism](https://github.com/UCL/BSP-isobenefit-urbanism) repository for a related [web page](https://github-pages.ucl.ac.uk/BSP-isobenefit-urbanism).
+
 ## Run the simulations
 
 ![GUI interface](gui-interface-example.png?raw=true)
